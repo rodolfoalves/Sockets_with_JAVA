@@ -3,6 +3,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
 
+        /*
         Thread thread1 = new Thread(){
             public void run(){
                 Server.startServer();
@@ -20,5 +21,6 @@ public class Main {
 
         thread1.join();
         thread2.join();
+    */
     }
 }
