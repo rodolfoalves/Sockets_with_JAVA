@@ -1,6 +1,12 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,67 +14,68 @@ import java.util.logging.Logger;
 public class Server {
 
     public static void main(String args[]) throws IOException {
-        ServerSocket servidor = new ServerSocket(12345);
-        System.out.println("Porta 12345 aberta!");
+        ServerSocket serverSocket = new ServerSocket(12345);
+        System.out.println("12345 open");
 
-        Socket cliente = servidor.accept();
-        System.out.println("Nova conexão com o cliente " + cliente.getInetAddress().getHostAddress());
-
+        Socket cliente = serverSocket.accept();
+        System.out.println("New connection: client -> " + cliente.getInetAddress().getHostAddress());
         Scanner s = new Scanner(cliente.getInputStream());
-        while (s.hasNextLine()) {
-            System.out.println(s.nextLine());
-        }
 
-        s.close();
-        servidor.close();
-        cliente.close();
-    }
 
-/*
-    public static void startServer() throws IOException {
-        ServerSocket servidor = new ServerSocket(12345);
-        System.out.println("Porta 12345 aberta!");
 
-        Socket cliente = servidor.accept();
-        System.out.println("Nova conexão com o cliente " +
-                cliente.getInetAddress().getHostAddress()
-        );
 
-        Scanner s = new Scanner(cliente.getInputStream());
-        while (s.hasNextLine()) {
-            System.out.println(s.nextLine());
-        }
 
-        s.close();
-        servidor.close();
-        cliente.close();
-    }
+        System.out.println("start the image copy server");
 
-*/
+        Socket socket = serverSocket.accept();
+        InputStream inputStream = socket.getInputStream();
+        System.out.println("Reading: " + System.currentTimeMillis());
+
+        byte[] sizeAr = new byte[4];
+        inputStream.read(sizeAr);
+        int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
+
+        byte[] imageAr = new byte[size];
+        inputStream.read(imageAr);
+
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageAr));
+
+        System.out.println("Received " + image.getHeight() + "x" + image.getWidth() + ": " + System.currentTimeMillis());
+        ImageIO.write(image, "jpg", new File("file/out/out.png"));
 
 
 /*
-    public static void startServer(){
-        try {
-            ServerSocket server = new ServerSocket(3322);
-            System.out.println("Servidor iniciado na porta 3322");
-
-            Socket cliente = server.accept();
-            System.out.println("Cliente conectado do IP "+cliente.getInetAddress().
-                    getHostAddress());
-            Scanner entrada = new Scanner(cliente.getInputStream());
-            while(entrada.hasNextLine()){
-                System.out.println(entrada.nextLine());
+        if (s.nextLine().equals("start the chat server")){
+            System.out.println("start the chat server");
+            while (s.hasNextLine()) {
+                System.out.println(s.nextLine());
             }
-
-            entrada.close();
-            server.close();
-
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+        else {
+            System.out.println("start the image copy server");
 
+            Socket socket = server.accept();
+            InputStream inputStream = socket.getInputStream();
+
+            System.out.println("Reading: " + System.currentTimeMillis());
+
+            byte[] sizeAr = new byte[4];
+            inputStream.read(sizeAr);
+            int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
+
+            byte[] imageAr = new byte[size];
+            inputStream.read(imageAr);
+
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageAr));
+
+            System.out.println("Received " + image.getHeight() + "x" + image.getWidth() + ": " + System.currentTimeMillis());
+            ImageIO.write(image, "jpg", new File("file/out/foto.jpg"));
+
+        }
+*/
+        s.close();
+        serverSocket.close();
+        cliente.close();
     }
 
-  */
 }
